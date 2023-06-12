@@ -24,32 +24,45 @@ async function sendMessage() {
         // Display response from server
         const data = await response.json();
 
-        console.log(data.hotels);
-
-        // Generate text response from bot message
-        let botMessage = '';
-        if (data.hotels) {
-            botMessage += 'Here are some hotels you might be interested in:\n';
-            data.hotels.forEach((hotel, index) => {
-                botMessage += `${index + 1}. ${hotel.name} - ${hotel.area}, ${hotel.price}\n`;
-            });
-        }
-
-        if (data.itinerary) {
-            botMessage += 'Here is an itinerary for your trip:\n';
-            data.itinerary.forEach((day) => {
-                botMessage += `Day ${day.day}:\n`;
-                day.toDo.forEach((activity, index) => {
-                    botMessage += `${index + 1}. ${activity.name} - ${activity.time}\n`;
-                });
-            });
-        }
+        console.log(data.bot);
 
         // Display text response from bot message
-        displayMessage(botMessage, 'bot');
+        displayMessage(data.bot, 'bot');
     }
 }
 
+function generateBotMessage(botData) {
+    let message = '';
+
+    // Extract hotel information
+    if (botData.hotels && botData.hotels.length > 0) {
+        message += 'Hotels:\n';
+        botData.hotels.forEach((hotel) => {
+            message += `- ${hotel.name}\n`;
+            message += `  Price: ${hotel.price}\n`;
+            message += `  Area: ${hotel.area}\n\n`;
+        });
+    }
+
+    // Extract itinerary information
+    if (botData.itinerary && botData.itinerary.length > 0) {
+        message += 'Itinerary:\n';
+        botData.itinerary.forEach((day) => {
+            message += `- ${day.day}:\n`;
+            day.toDo.forEach((task) => {
+                message += `  - ${task.name}\n`;
+                message += `    Time: ${task.time}\n`;
+            });
+        });
+    }
+
+    // If no information is available, display a default message
+    if (message === '') {
+        message = 'I apologize, but I couldn\'t find any information.';
+    }
+
+    return message;
+}
 
 function displayMessage(message, sender) {
     const messageElement = document.createElement('p');
